@@ -7,8 +7,19 @@ import Link from "next/link"
 
 export default function HomePage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-6 py-12">
+    <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 relative overflow-hidden">
+      {/* Background Logo Watermark */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div className="opacity-5 dark:opacity-3 transform scale-150 md:scale-200">
+          <img 
+            src="/logo.png" 
+            alt="" 
+            className="w-64 h-64 object-contain filter grayscale"
+          />
+        </div>
+      </div>
+      
+      <div className="container mx-auto px-6 py-12 relative z-10">
         {/* Hero Section */}
         <div className="text-center mb-16">
           <div className="mb-6">
