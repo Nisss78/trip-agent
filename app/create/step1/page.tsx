@@ -8,8 +8,49 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 import Link from "next/link"
+import { useTripPlan } from "@/contexts/TripPlanContext"
+import { useState, useEffect } from "react"
 
 export default function CreateStep1() {
+  const { state, updateBasicInfo, isStep1Complete } = useTripPlan()
+  const [formData, setFormData] = useState({
+    title: state.title,
+    origin: state.origin,
+    destination: state.destination,
+    startDate: state.startDate,
+    endDate: state.endDate,
+    participants: state.participants.toString(),
+    budget: state.budget,
+    purpose: state.purpose
+  })
+
+  // Update form data when state changes
+  useEffect(() => {
+    setFormData({
+      title: state.title,
+      origin: state.origin,
+      destination: state.destination,
+      startDate: state.startDate,
+      endDate: state.endDate,
+      participants: state.participants.toString(),
+      budget: state.budget,
+      purpose: state.purpose
+    })
+  }, [state])
+
+  const handleInputChange = (field: string, value: string) => {
+    const newFormData = { ...formData, [field]: value }
+    setFormData(newFormData)
+    
+    // Update context immediately
+    updateBasicInfo({
+      ...newFormData,
+      participants: parseInt(newFormData.participants) || 2
+    })
+  }
+
+  const canProceed = isStep1Complete()
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="container mx-auto px-4 py-8">
@@ -57,28 +98,61 @@ export default function CreateStep1() {
           <CardContent className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="title">旅行のタイトル</Label>
-              <Input id="title" placeholder="例: 京都の紅葉を楽しむ旅" />
+              <Input 
+                id="title" 
+                placeholder="例: 京都の紅葉を楽しむ旅"
+                value={formData.title}
+                onChange={(e) => handleInputChange('title', e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="origin">出発地（現在地）</Label>
+              <Input 
+                id="origin" 
+                placeholder="例: 東京都"
+                value={formData.origin}
+                onChange={(e) => handleInputChange('origin', e.target.value)}
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="destination">行き先</Label>
-              <Input id="destination" placeholder="例: 京都府" />
+              <Input 
+                id="destination" 
+                placeholder="例: 京都府"
+                value={formData.destination}
+                onChange={(e) => handleInputChange('destination', e.target.value)}
+              />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="start-date">出発日</Label>
-                <Input id="start-date" type="date" />
+                <Input 
+                  id="start-date" 
+                  type="date"
+                  value={formData.startDate}
+                  onChange={(e) => handleInputChange('startDate', e.target.value)}
+                />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="end-date">帰着日</Label>
-                <Input id="end-date" type="date" />
+                <Input 
+                  id="end-date" 
+                  type="date"
+                  value={formData.endDate}
+                  onChange={(e) => handleInputChange('endDate', e.target.value)}
+                />
               </div>
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="members">参加人数</Label>
-              <Select>
+              <Select 
+                value={formData.participants}
+                onValueChange={(value) => handleInputChange('participants', value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="人数を選択" />
                 </SelectTrigger>
@@ -94,7 +168,10 @@ export default function CreateStep1() {
 
             <div className="space-y-2">
               <Label htmlFor="budget">予算（一人あたり）</Label>
-              <Select>
+              <Select 
+                value={formData.budget}
+                onValueChange={(value) => handleInputChange('budget', value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="予算を選択" />
                 </SelectTrigger>
@@ -113,17 +190,25 @@ export default function CreateStep1() {
                 id="purpose"
                 placeholder="例: 紅葉を見たい、美味しいものを食べたい、温泉に入りたい など"
                 rows={3}
+                value={formData.purpose}
+                onChange={(e) => handleInputChange('purpose', e.target.value)}
               />
             </div>
 
             <div className="flex justify-end">
               <Link href="/create/step2">
-                <Button>
+                <Button disabled={!canProceed}>
                   次へ
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
             </div>
+            
+            {!canProceed && (
+              <div className="text-sm text-gray-500 text-center mt-2">
+                すべての必須項目を入力してください
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

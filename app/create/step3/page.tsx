@@ -8,10 +8,67 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { ArrowLeft, ArrowRight, Train, Car, Plane, Bus } from "lucide-react"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useTripPlan } from "@/contexts/TripPlanContext"
 
 export default function CreateStep3() {
-  const [transportationDecided, setTransportationDecided] = useState(false)
+  const { state, updateTransportation, isStep3Complete } = useTripPlan()
+  const [preferences, setPreferences] = useState<string[]>(state.transportation.preferences || [])
+  const [priority, setPriority] = useState(state.transportation.priority || 'balanced')
+  const [isDecided, setIsDecided] = useState(state.transportation.isDecided || false)
+  const [details, setDetails] = useState({
+    outbound: state.transportation.details?.outbound || '',
+    return: state.transportation.details?.return || '',
+    localTransport: state.transportation.details?.localTransport || ''
+  })
+
+  // Update local state when context state changes
+  useEffect(() => {
+    setPreferences(state.transportation.preferences || [])
+    setPriority(state.transportation.priority || 'balanced')
+    setIsDecided(state.transportation.isDecided || false)
+    if (state.transportation.details) {
+      setDetails({
+        outbound: state.transportation.details.outbound || '',
+        return: state.transportation.details.return || '',
+        localTransport: state.transportation.details.localTransport || ''
+      })
+    }
+  }, [state])
+
+  const handlePreferenceChange = (preference: string, checked: boolean) => {
+    const newPreferences = checked 
+      ? [...preferences, preference]
+      : preferences.filter(p => p !== preference)
+    
+    setPreferences(newPreferences)
+    updateTransportation({ preferences: newPreferences })
+  }
+
+  const handlePriorityChange = (newPriority: string) => {
+    const validPriority = newPriority as "fast" | "cheap" | "comfort" | "balanced"
+    setPriority(validPriority)
+    updateTransportation({ priority: validPriority })
+  }
+
+  const handleDecidedChange = (decided: boolean) => {
+    setIsDecided(decided)
+    updateTransportation({ 
+      isDecided: decided,
+      details: decided ? details : undefined
+    })
+  }
+
+  const handleDetailChange = (field: string, value: string) => {
+    const newDetails = { ...details, [field]: value }
+    setDetails(newDetails)
+    
+    if (isDecided) {
+      updateTransportation({ details: newDetails })
+    }
+  }
+
+  const canProceed = isStep3Complete()
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -60,7 +117,13 @@ export default function CreateStep3() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 gap-3">
                 <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <input type="checkbox" id="train" className="rounded" />
+                  <input 
+                    type="checkbox" 
+                    id="train" 
+                    className="rounded"
+                    checked={preferences.includes('電車・新幹線')}
+                    onChange={(e) => handlePreferenceChange('電車・新幹線', e.target.checked)}
+                  />
                   <Label htmlFor="train" className="flex items-center gap-3 cursor-pointer flex-1">
                     <Train className="h-5 w-5 text-blue-600" />
                     <div>
@@ -71,7 +134,13 @@ export default function CreateStep3() {
                 </div>
 
                 <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <input type="checkbox" id="car" className="rounded" />
+                  <input 
+                    type="checkbox" 
+                    id="car" 
+                    className="rounded"
+                    checked={preferences.includes('自家用車・レンタカー')}
+                    onChange={(e) => handlePreferenceChange('自家用車・レンタカー', e.target.checked)}
+                  />
                   <Label htmlFor="car" className="flex items-center gap-3 cursor-pointer flex-1">
                     <Car className="h-5 w-5 text-green-600" />
                     <div>
@@ -82,7 +151,13 @@ export default function CreateStep3() {
                 </div>
 
                 <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <input type="checkbox" id="plane" className="rounded" />
+                  <input 
+                    type="checkbox" 
+                    id="plane" 
+                    className="rounded"
+                    checked={preferences.includes('飛行機')}
+                    onChange={(e) => handlePreferenceChange('飛行機', e.target.checked)}
+                  />
                   <Label htmlFor="plane" className="flex items-center gap-3 cursor-pointer flex-1">
                     <Plane className="h-5 w-5 text-purple-600" />
                     <div>
@@ -93,7 +168,13 @@ export default function CreateStep3() {
                 </div>
 
                 <div className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <input type="checkbox" id="bus" className="rounded" />
+                  <input 
+                    type="checkbox" 
+                    id="bus" 
+                    className="rounded"
+                    checked={preferences.includes('高速バス')}
+                    onChange={(e) => handlePreferenceChange('高速バス', e.target.checked)}
+                  />
                   <Label htmlFor="bus" className="flex items-center gap-3 cursor-pointer flex-1">
                     <Bus className="h-5 w-5 text-orange-600" />
                     <div>
@@ -106,7 +187,7 @@ export default function CreateStep3() {
 
               <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-3">優先度を選択</h4>
-                <RadioGroup defaultValue="balanced" className="space-y-2">
+                <RadioGroup value={priority} onValueChange={handlePriorityChange} className="space-y-2">
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="fast" id="fast" />
                     <Label htmlFor="fast">早さ重視</Label>
@@ -130,15 +211,15 @@ export default function CreateStep3() {
                 <span className="font-medium">交通手段が決まっている</span>
                 <input
                   type="checkbox"
-                  checked={transportationDecided}
-                  onChange={(e) => setTransportationDecided(e.target.checked)}
+                  checked={isDecided}
+                  onChange={(e) => handleDecidedChange(e.target.checked)}
                   className="rounded"
                 />
               </div>
             </CardContent>
           </Card>
 
-          {transportationDecided && (
+          {isDecided && (
             <Card className="border-green-200 bg-green-50 dark:bg-green-900/10">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base">交通手段の詳細</CardTitle>
@@ -146,15 +227,32 @@ export default function CreateStep3() {
               <CardContent className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="outbound">往路の詳細</Label>
-                  <Textarea id="outbound" placeholder="例: 11/15 東京駅 9:00発 のぞみ123号 京都駅 11:15着" rows={2} />
+                  <Textarea 
+                    id="outbound" 
+                    placeholder="例: 11/15 東京駅 9:00発 のぞみ123号 京都駅 11:15着" 
+                    rows={2}
+                    value={details.outbound}
+                    onChange={(e) => handleDetailChange('outbound', e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="return">復路の詳細</Label>
-                  <Textarea id="return" placeholder="例: 11/17 京都駅 16:00発 のぞみ456号 東京駅 18:15着" rows={2} />
+                  <Textarea 
+                    id="return" 
+                    placeholder="例: 11/17 京都駅 16:00発 のぞみ456号 東京駅 18:15着" 
+                    rows={2}
+                    value={details.return}
+                    onChange={(e) => handleDetailChange('return', e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="local-transport">現地での移動手段</Label>
-                  <Input id="local-transport" placeholder="例: 市バス一日券、レンタカー、徒歩 など" />
+                  <Input 
+                    id="local-transport" 
+                    placeholder="例: 市バス一日券、レンタカー、徒歩 など"
+                    value={details.localTransport}
+                    onChange={(e) => handleDetailChange('localTransport', e.target.value)}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -170,7 +268,7 @@ export default function CreateStep3() {
             </Button>
           </Link>
           <Link href="/create/step4">
-            <Button>
+            <Button disabled={!canProceed}>
               次へ
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>

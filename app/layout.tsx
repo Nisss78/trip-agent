@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Noto_Sans_JP } from "next/font/google"
 import "./globals.css"
 import { Layout } from "@/components/layout"
+import { TripPlanProvider } from "@/contexts/TripPlanContext"
 
 const notoSansJP = Noto_Sans_JP({
   subsets: ["latin"],
@@ -23,8 +24,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="ja">
-      <body className={notoSansJP.className}>
-        <Layout>{children}</Layout>
+      <body className={notoSansJP.className} suppressHydrationWarning={true}>
+        <TripPlanProvider>
+          <Layout>{children}</Layout>
+        </TripPlanProvider>
       </body>
     </html>
   )
