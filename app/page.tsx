@@ -13,9 +13,9 @@ export default function HomePage() {
         <div className="text-center mb-16">
           <div className="mb-6">
             <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4 leading-tight">
-              みんなで作る
+              <span className="text-blue-500">プランgo</span>で
               <br />
-              <span className="text-blue-500">素敵な旅行プラン</span>
+              素敵な旅行プランを
             </h1>
             <p className="text-lg text-gray-600 dark:text-gray-300 max-w-md mx-auto leading-relaxed">
               簡単な質問に答えるだけで、

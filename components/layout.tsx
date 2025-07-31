@@ -2,11 +2,12 @@
 
 import type React from "react"
 
-import { MapPin, Home, List, Settings, User } from "lucide-react"
+import { Home, List, Settings, User } from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import Logo from "@/components/Logo"
 
 interface LayoutProps {
   children: React.ReactNode
@@ -28,12 +29,7 @@ export function Layout({ children }: LayoutProps) {
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                <MapPin className="h-4 w-4 text-white" />
-              </div>
-              <h1 className="text-lg font-medium text-gray-900 dark:text-white">旅行プランナー</h1>
-            </div>
+            <Logo size="sm" />
 
             {/* User Avatar */}
             <Avatar className="h-8 w-8">

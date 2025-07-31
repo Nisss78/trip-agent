@@ -12,9 +12,9 @@ const notoSansJP = Noto_Sans_JP({
 })
 
 export const metadata: Metadata = {
-  title: "旅行プランナー",
+  title: "プランgo",
   description: "みんなで作る、素敵な旅行プラン",
-    generator: 'v0.dev'
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({
