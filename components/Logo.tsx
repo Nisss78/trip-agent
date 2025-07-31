@@ -27,22 +27,24 @@ export default function Logo({ className = "", showText = true, size = "md" }: L
 
   return (
     <Link href="/" className={`flex items-center gap-3 hover:opacity-80 transition-opacity ${className}`}>
-      <div className={`${sizeClasses[size]} relative rounded-lg overflow-hidden bg-blue-500 flex items-center justify-center`}>
+      <div className={`${sizeClasses[size]} relative rounded-lg overflow-hidden flex items-center justify-center`}>
         {!logoError ? (
           <Image
             src="/logo.png"
             alt="プランgo ロゴ"
             width={size === "sm" ? 32 : size === "md" ? 40 : 48}
             height={size === "sm" ? 32 : size === "md" ? 40 : 48}
-            className="object-cover"
+            className="object-contain"
             onError={() => setLogoError(true)}
             priority
           />
         ) : (
           // フォールバック: 画像が見つからない場合
-          <span className="text-white font-bold text-sm">
-            プ
-          </span>
+          <div className="bg-blue-500 w-full h-full flex items-center justify-center rounded-lg">
+            <span className="text-white font-bold text-sm">
+              プ
+            </span>
+          </div>
         )}
       </div>
       {showText && (
