@@ -9,12 +9,12 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 dark:from-gray-900 dark:to-gray-800 relative overflow-hidden">
       {/* Background Logo Watermark */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-        <div className="opacity-5 dark:opacity-3 transform scale-150 md:scale-200">
+      <div className="absolute inset-0 flex items-start justify-center pt-20 md:pt-16 pointer-events-none">
+        <div className="opacity-10 dark:opacity-8 transform scale-200 md:scale-300">
           <img 
             src="/logo.png" 
             alt="" 
-            className="w-64 h-64 object-contain filter grayscale"
+            className="w-64 h-64 object-contain"
           />
         </div>
       </div>
